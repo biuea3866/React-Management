@@ -16,38 +16,32 @@ const styles = theme =>({
     overflowX: "auto"
   },
   table:{
-    minWidth:1080
+    minWidth: 1080
   }
 })
-const customers = [
-  {
-    'id': 1,
-    'image': 'https://placeimg.com/64/64/1',
-    'name': 'Hong gil-dong',
-    'birthday' : '961222',
-    'gender' : 'Male',
-    'jobs' : 'Graduent'
-  },
-  {
-    'id': 2,
-    'image': 'https://placeimg.com/64/64/2',
-    'name': 'Kim gae-ddong',
-    'birthday' : '001201',
-    'gender' : 'Male',
-    'jobs' : 'Programmer'
-  },
-  {
-    'id': 3,
-    'image': 'https://placeimg.com/64/64/3',
-    'name': 'Park chul-soo',
-    'birthday' : '930201',
-    'gender' : 'Male',
-    'jobs' : 'None'
-  }
-]
+
 // Body Tag
 class App extends Component{
+  // 변경가능
+  state={
+    customers: ""
+  }
+
+  componentDidMount(){
+    this.callApi()
+    .then(res => this.setState({customers : res}))
+    .catch(err => console.log(err))
+  }
+
+  callApi = async() => {
+    const response = await fetch('/api/customers')
+    const body = await response.json()
+
+    return body;
+  }
+
   render(){
+    // props 변경불가
     const {classes} = this.props
 
     return(
@@ -64,8 +58,8 @@ class App extends Component{
             </TableRow>
           </TableHead>
           <TableBody>
-            {
-            customers.map(c => {
+            {this.state.customers ? this.state.customers.map(c => 
+              {
               return (
               <Customer
                 key={c.id}
@@ -74,10 +68,8 @@ class App extends Component{
                 name={c.name}
                 birthday={c.birthday}
                 gender={c.gender}
-                jobs={c.jobs}
-                />)
-              })
-            }
+                jobs={c.jobs}/>)
+              }) : ""}
           </TableBody>
         </Table>
       </Paper>
