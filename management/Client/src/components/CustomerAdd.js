@@ -45,7 +45,7 @@ class CustomerAdd extends React.Component{
             userName: '',       // profile Name
             birthday: '',       // profile birthday
             gender: '',         // profile gender
-            job: '',            // profile job
+            job: '',           // profile job
             fileName: ''        // profile fileName
         })
     }
