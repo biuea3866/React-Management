@@ -1,5 +1,18 @@
 import React from 'react';
 import { post } from 'axios'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogTitle from '@material-ui/core/DialogTitle'
+import DialogContent from '@material-ui/core/DialogContent'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
+import {withStyles} from '@material-ui/core/styles'
+
+const styles = theme => ({
+    hidden: {
+        display : 'none'
+    }
+})
 
 class CustomerAdd extends React.Component{
     constructor(props){
@@ -11,7 +24,8 @@ class CustomerAdd extends React.Component{
             birthday: '',       // profile birthday
             gender: '',         // profile gender
             job: '',            // profile job
-            fileName: ''        // profile fileName
+            fileName: '',       // profile fileName
+            open: false
         }
     }
 
@@ -40,13 +54,14 @@ class CustomerAdd extends React.Component{
             }
         )
 
-        this.setState(this.state={
+        this.setState({
             file: null,         // profile image
             userName: '',       // profile Name
             birthday: '',       // profile birthday
             gender: '',         // profile gender
-            job: '',           // profile job
-            fileName: ''        // profile fileName
+            job: '',            // profile job
+            fileName: '',       // profile fileName
+            open: false
         })
     }
 
@@ -69,19 +84,59 @@ class CustomerAdd extends React.Component{
         return post(url, formData, config);
     }
 
+    handleClickOpen = () => {
+        this.setState({
+            open: true
+        })
+    }
+
+    handleClose = () => {
+        this.setState({
+            file: null,         // profile image
+            userName: '',       // profile Name
+            birthday: '',       // profile birthday
+            gender: '',         // profile gender
+            job: '',            // profile job
+            fileName: '',       // profile fileName
+            open: false
+        })
+    }
+
     render(){
+        const { classes } = this.props;
+
         return(
-            <form onSubmit={this.handleFormSubmit}>
-                <h1>ADD customer</h1>
-                Profile Image : <input type="file" name="file" file={this.state.file} value={this.state.fileName} onChange={this.handleFileChange}/><br/>
-                Name : <input type="text" name="userName" value={this.state.userName} onChange={this.handleValueChange}/><br/>
-                Birth Day : <input type="text" name="birthDay" value={this.state.birthday} onChange={this.handleValueChange}/><br/>
-                Gender : <input type="text" name="gender" value={this.state.gender} onChange={this.handleValueChange}/><br/>
-                Job : <input type="text" name="job" value={this.state.job} onChange={this.handleValueChange}/><br/>
-                <button type="submit">Sign Up</button>
-            </form>
+            <div>
+                <Button variant = "contained" color = "primary" onClick={this.handelClickOpen}>
+                    Add Customer
+                </Button>
+                <Dialog open={this.state.open} onClose={this.handleClose}>
+                    <DialogTitle>Customer Addiction</DialogTitle>
+                    <DialogContent>
+                        <input className={classes.hidden} accept="image/*" id="raised-button-file" type="file" file={this.state.file} value={this.state.fileName} onChange={this.handleFileChange}/><br/>
+                        <label htmlFor="raised-button-file">
+                            <Button variant="contained" color="primary" component="span" name="file">
+                                {this.state.fileName === "" ? "Selct Profile Image" : this.state.fileName}
+                            </Button>
+                        </label>
+                        <br/>
+                        <TextField label="Name" type="text" name="userName" value={this.state.userName} onChange={this.handleValueChange}/><br/>
+                        <TextField label="Birth Day" type="text" name="birthDay" value={this.state.birthday} onChange={this.handleValueChange}/><br/>
+                        <TextField label="Gender" type="text" name="gender" value={this.state.gender} onChange={this.handleValueChange}/><br/>
+                        <TextField label="Job" type="text" name="job" value={this.state.job} onChange={this.handleValueChange}/><br/>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button variant="contained" color="primary" onClick={this.handleFormSubmit}>
+                            Add
+                        </Button>
+                        <Button variant="outlined" color="primary" onClick={this.handleClose}>
+                            Close
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </div>
         )
     }
 }
 
-export default CustomerAdd
+export default withStyles(styles)(CustomerAdd)
