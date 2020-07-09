@@ -31,11 +31,9 @@ const styles = theme =>({
   menu: {
     marginTop: 15,
     marginBottom: 15,
+    marginLeft: 16,
     display: 'flex',
-    justifyContent: 'center'
-  },
-  tableHead: {
-    
+    justifyContent: 'right'
   },
   menuButton: {
     marginRight: theme.spacing(2),
@@ -88,6 +86,9 @@ const styles = theme =>({
   },
   progress:{
     margin : theme.spacing.unit * 2 
+  },
+  tableHead:{
+    fontSize: '1.0rem'
   }
 })
 
@@ -115,14 +116,16 @@ class App extends Component{
 
     this.state = {
       customers: '',
-      completed: 0
+      completed: 0,
+      searchKeyword: ''
     }
   }
 
   stateRefresh = () => {
     this.setState({
       customers: '',
-      completed: 0
+      completed: 0,
+      searchKeyword: ''
     });
 
     this.callApi()
@@ -148,10 +151,26 @@ class App extends Component{
     const{completed} = this.state
     this.setState({completed: completed >= 100 ? 0: completed + 1})
   }
+
+  handleValueChange = (e) => {
+    let nextState = {};
+
+    nextState[e.target.name] = e.target.value;
+    this.setState(nextState)
+  }
   render(){
     // props 변경불가
     const {classes} = this.props
     const cellList = ["No.", "Profile Image", "Name", "Birth Day", "Gender", "Job", "Setting"]
+    const filteredComponents = (data) => {
+      data = data.filter((c) => {
+        return c.name.indexOf(this.state.searchKeyword) > -1;
+      });
+
+      return data.map((c) => {
+        return <Customer stateRefresh={this.stateRefresh} key={c.id} id={c.id} image={c.image} name={c.name} birthday={c.birthday} gender={c.gender} job={c.job}/>
+      })
+    }
     return(
       <div className={classes.root}>
         <AppBar position="static">
@@ -177,13 +196,15 @@ class App extends Component{
                   root: classes.inputRoot,
                   input: classes.inputInput,
                 }}
-                inputProps={{ 'aria-label': 'search' }}
+                name="searchKeyword"
+                value={this.state.searchKeyword}
+                onChange={this.handleValueChange}
               />
             </div>
           </Toolbar>
         </AppBar>
         <div className={classes.menu}>
-          <CustomerAdd stateRefresh={this.stateRefresh}/>
+          <CustomerAdd stateRefresh = {this.props.stateRefresh} id = {this.props.id}/>
         </div>
         <Paper className={classes.paper}>
           <Table className={classes.table}>
@@ -195,25 +216,14 @@ class App extends Component{
               </TableRow>
             </TableHead>
             <TableBody>
-              {this.state.customers ? this.state.customers.map(c => 
-                {
-                return (
-                <Customer 
-                  stateRefresh={this.stateRefresh}
-                  key={c.id}
-                  id={c.id}
-                  image={c.image}
-                  name={c.name}
-                  birthday={c.birthday}
-                  gender={c.gender}
-                  job={c.job}/>)
-                }) : 
-                <TableRow>
-                  <TableCell colSpan="6" align="center">
-                    <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
-                  </TableCell>
-                </TableRow>
-                }
+              {this.state.customers ? 
+                filteredComponents(this.state.customers) : 
+              <TableRow>
+                <TableCell colSpan="6" align="center">
+                  <CircularProgress className={classes.progress} variant="determinate" value={this.state.completed}/>
+                </TableCell>
+              </TableRow>
+              }
             </TableBody>
           </Table>
         </Paper>
